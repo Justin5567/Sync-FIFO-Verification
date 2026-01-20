@@ -5,6 +5,7 @@ class fifo_env extends uvm_env;
     `uvm_component_utils(fifo_env)
     fifo_agent      agent;
     fifo_scoreboard scoreboard;
+    fifo_coverage   coverage;
 
     function new(string name, uvm_component parent); super.new(name, parent); endfunction
 
@@ -12,10 +13,12 @@ class fifo_env extends uvm_env;
         super.build_phase(phase);
         agent = fifo_agent::type_id::create("agent", this);
         scoreboard = fifo_scoreboard::type_id::create("scoreboard", this);
+        coverage = fifo_coverage::type_id::create("coverage", this);
     endfunction
 
     virtual function void connect_phase(uvm_phase phase);
         agent.monitor.ap.connect(scoreboard.item_got_export);
+        agent.monitor.ap.connect(coverage.analysis_export);
     endfunction
 endclass
 

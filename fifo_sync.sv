@@ -34,14 +34,6 @@ always@(posedge clk or negedge rst_n)begin
         fifo[write_ptr[FIFO_DEPTH_LOG-1:0]] <= data_in;
 end
 
-// output
-// always@(posedge clk or negedge rst_n)begin
-//     if(!rst_n)
-//         data_out <=0;
-//     else if(cs && rd_en && !empty)
-//         data_out <= fifo[read_ptr[FIFO_DEPTH_LOG-1:0]];
-// end
-
 always@(*)begin
     data_out = fifo[read_ptr[FIFO_DEPTH_LOG-1:0]];
 end

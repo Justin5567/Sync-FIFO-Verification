@@ -30,6 +30,8 @@ class fifo_monitor extends uvm_monitor;
                 tr.data_in = vif.mon_cb.data_in;
 
                 tr.data_out = vif.mon_cb.data_out;
+                tr.full     = vif.mon_cb.full;
+                tr.empty    = vif.mon_cb.empty;
                 ap.write(tr);
             end
         end
