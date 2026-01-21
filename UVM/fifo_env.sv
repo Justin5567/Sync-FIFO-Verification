@@ -38,16 +38,21 @@ class fifo_test extends uvm_test;
         fifo_empty_sequence    empty_seq;
         fifo_simul_rw_sequence simul_seq;
         fifo_random_sequence   rand_seq;
+        fifo_data_coverage_sequence data_seq;
 
         fill_seq  = fifo_fill_sequence::type_id::create("fill_seq");
         empty_seq = fifo_empty_sequence::type_id::create("empty_seq");
         simul_seq = fifo_simul_rw_sequence::type_id::create("simul_seq");
         rand_seq  = fifo_random_sequence::type_id::create("rand_seq");
+        data_seq  = fifo_data_coverage_sequence::type_id::create("data_seq");
 
         phase.raise_objection(this); 
         
         #10ns; 
         
+        `uvm_info("TEST", "Running Data Coverage Sequence...", UVM_LOW)
+        data_seq.start(env.agent.sequencer);
+
         `uvm_info("TEST", "Running Fill Sequence...", UVM_LOW)
         fill_seq.start(env.agent.sequencer);
         

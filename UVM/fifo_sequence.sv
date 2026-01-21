@@ -78,3 +78,37 @@ class fifo_random_sequence extends fifo_base_sequence;
         end
     endtask
 endclass
+
+// --- 5. Data Coverage Sequence (Targeting zeros, ones, low_range) ---
+class fifo_data_coverage_sequence extends fifo_base_sequence;
+    `uvm_object_utils(fifo_data_coverage_sequence)
+    function new(string name = "fifo_data_coverage_sequence"); super.new(name); endfunction
+
+    virtual task body();
+        `uvm_info("SEQ", "Starting Data Coverage Sequence", UVM_LOW)
+        
+        // Target 'zeros' bin
+        repeat(2) begin
+            req = fifo_transaction::type_id::create("req");
+            start_item(req);
+            if (!req.randomize() with {wr_en == 1; data_in == 32'h0000_0000;}) `uvm_error("SEQ", "Random fail")
+            finish_item(req);
+        end
+
+        // Target 'ones' bin
+        repeat(2) begin
+            req = fifo_transaction::type_id::create("req");
+            start_item(req);
+            if (!req.randomize() with {wr_en == 1; data_in == 32'hFFFF_FFFF;}) `uvm_error("SEQ", "Random fail")
+            finish_item(req);
+        end
+
+        // Target 'low_range' bin
+        repeat(5) begin
+            req = fifo_transaction::type_id::create("req");
+            start_item(req);
+            if (!req.randomize() with {wr_en == 1; data_in inside {[1:100]};}) `uvm_error("SEQ", "Random fail")
+            finish_item(req);
+        end
+    endtask
+endclass
