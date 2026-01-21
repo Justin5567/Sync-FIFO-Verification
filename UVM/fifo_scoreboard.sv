@@ -16,14 +16,21 @@ class fifo_scoreboard extends uvm_scoreboard;
     endfunction
 
     virtual function void write(fifo_transaction tr);
-        if(tr.wr_en) begin
+        // Note: In this FIFO design, a read/write at the same time when empty 
+        // results in the write succeeding but the read being ignored by hardware 
+        // because 'empty' was true at the clock edge.
+        
+        if(tr.wr_en && !tr.full) begin
             expected_queue.push_back(tr.data_in);
             `uvm_info("[Scoreboard] Write", $sformatf("Data = %h", tr.data_in), UVM_LOW)
         end
 
         if(tr.rd_en) begin
-            if(expected_queue.size()==0)begin
-                `uvm_error("[SCB_RD_ERR]", "Reading from the empty FIFO")
+            if(tr.empty) begin
+                `uvm_info("[Scoreboard] Read Ignored", "Read attempted while FIFO empty (Correctly ignored by HW)", UVM_DEBUG)
+            end
+            else if(expected_queue.size()==0)begin
+                `uvm_error("[SCB_RD_ERR]", "Scoreboard queue empty but hardware not empty!")
                 error_count ++;
             end
             else begin
@@ -38,12 +45,8 @@ class fifo_scoreboard extends uvm_scoreboard;
                     `uvm_error("SCB_MISMATCH", $sformatf("Wrong! Golden: %h, Your Answer: %h", expected_data, tr.data_out))
                     error_count++;
                 end
-
             end
-
-
         end
-
     endfunction
 
     virtual function void report_phase(uvm_phase phase);

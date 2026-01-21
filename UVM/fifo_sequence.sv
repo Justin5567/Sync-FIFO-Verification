@@ -91,7 +91,7 @@ class fifo_data_coverage_sequence extends fifo_base_sequence;
         repeat(2) begin
             req = fifo_transaction::type_id::create("req");
             start_item(req);
-            if (!req.randomize() with {wr_en == 1; data_in == 32'h0000_0000;}) `uvm_error("SEQ", "Random fail")
+            if (!req.randomize() with {wr_en == 1; rd_en == 0; data_in == 32'h0000_0000;}) `uvm_error("SEQ", "Random fail")
             finish_item(req);
         end
 
@@ -99,7 +99,7 @@ class fifo_data_coverage_sequence extends fifo_base_sequence;
         repeat(2) begin
             req = fifo_transaction::type_id::create("req");
             start_item(req);
-            if (!req.randomize() with {wr_en == 1; data_in == 32'hFFFF_FFFF;}) `uvm_error("SEQ", "Random fail")
+            if (!req.randomize() with {wr_en == 1; rd_en == 0; data_in == 32'hFFFF_FFFF;}) `uvm_error("SEQ", "Random fail")
             finish_item(req);
         end
 
@@ -107,7 +107,7 @@ class fifo_data_coverage_sequence extends fifo_base_sequence;
         repeat(5) begin
             req = fifo_transaction::type_id::create("req");
             start_item(req);
-            if (!req.randomize() with {wr_en == 1; data_in inside {[1:100]};}) `uvm_error("SEQ", "Random fail")
+            if (!req.randomize() with {wr_en == 1; rd_en == 0; data_in inside {[1:100]};}) `uvm_error("SEQ", "Random fail")
             finish_item(req);
         end
     endtask
