@@ -34,14 +34,31 @@ class fifo_test extends uvm_test;
     endfunction
 
     virtual task run_phase(uvm_phase phase);
-        fifo_random_sequence seq;
-        seq = fifo_random_sequence::type_id::create("seq");
+        fifo_fill_sequence     fill_seq;
+        fifo_empty_sequence    empty_seq;
+        fifo_simul_rw_sequence simul_seq;
+        fifo_random_sequence   rand_seq;
+
+        fill_seq  = fifo_fill_sequence::type_id::create("fill_seq");
+        empty_seq = fifo_empty_sequence::type_id::create("empty_seq");
+        simul_seq = fifo_simul_rw_sequence::type_id::create("simul_seq");
+        rand_seq  = fifo_random_sequence::type_id::create("rand_seq");
 
         phase.raise_objection(this); 
         
         #10ns; 
-    
-        seq.start(env.agent.sequencer);
+        
+        `uvm_info("TEST", "Running Fill Sequence...", UVM_LOW)
+        fill_seq.start(env.agent.sequencer);
+        
+        `uvm_info("TEST", "Running Empty Sequence...", UVM_LOW)
+        empty_seq.start(env.agent.sequencer);
+
+        `uvm_info("TEST", "Running Simultaneous R/W Sequence...", UVM_LOW)
+        simul_seq.start(env.agent.sequencer);
+        
+        `uvm_info("TEST", "Running Random Sequence...", UVM_LOW)
+        rand_seq.start(env.agent.sequencer);
         
         #100ns; 
         phase.drop_objection(this); 

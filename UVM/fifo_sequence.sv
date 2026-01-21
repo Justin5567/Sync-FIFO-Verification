@@ -1,18 +1,77 @@
 import uvm_pkg::*;
 `include "uvm_macros.svh"
 
-class fifo_random_sequence extends uvm_sequence #(fifo_transaction);
-    `uvm_object_utils(fifo_random_sequence)
+// --- Base Sequence ---
+class fifo_base_sequence extends uvm_sequence #(fifo_transaction);
+    `uvm_object_utils(fifo_base_sequence)
+    function new(string name = "fifo_base_sequence"); super.new(name); endfunction
+endclass
 
-    function new(string name = "fifo_random_sequence");
-        super.new(name);
-    endfunction
+// --- 1. Fill the FIFO until it is full ---
+class fifo_fill_sequence extends fifo_base_sequence;
+    `uvm_object_utils(fifo_fill_sequence)
+    function new(string name = "fifo_fill_sequence"); super.new(name); endfunction
 
     virtual task body();
-        repeat(50) begin
+        `uvm_info("SEQ", "Starting Fill Sequence", UVM_LOW)
+        repeat(10) begin // Depth is 8, repeat 10 to ensure overflow condition is tested
             req = fifo_transaction::type_id::create("req");
             start_item(req);
-            if (!req.randomize() with {wr_en != rd_en;}) begin
+            if (!req.randomize() with {wr_en == 1; rd_en == 0;}) begin
+                `uvm_error("SEQ", "Random fail")
+            end
+            finish_item(req);
+        end
+    endtask
+endclass
+
+// --- 2. Empty the FIFO until it is empty ---
+class fifo_empty_sequence extends fifo_base_sequence;
+    `uvm_object_utils(fifo_empty_sequence)
+    function new(string name = "fifo_empty_sequence"); super.new(name); endfunction
+
+    virtual task body();
+        `uvm_info("SEQ", "Starting Empty Sequence", UVM_LOW)
+        repeat(10) begin
+            req = fifo_transaction::type_id::create("req");
+            start_item(req);
+            if (!req.randomize() with {wr_en == 0; rd_en == 1;}) begin
+                `uvm_error("SEQ", "Random fail")
+            end
+            finish_item(req);
+        end
+    endtask
+endclass
+
+// --- 3. Simultaneous Read and Write ---
+class fifo_simul_rw_sequence extends fifo_base_sequence;
+    `uvm_object_utils(fifo_simul_rw_sequence)
+    function new(string name = "fifo_simul_rw_sequence"); super.new(name); endfunction
+
+    virtual task body();
+        `uvm_info("SEQ", "Starting Simultaneous R/W Sequence", UVM_LOW)
+        repeat(20) begin
+            req = fifo_transaction::type_id::create("req");
+            start_item(req);
+            if (!req.randomize() with {wr_en == 1; rd_en == 1;}) begin
+                `uvm_error("SEQ", "Random fail")
+            end
+            finish_item(req);
+        end
+    endtask
+endclass
+
+// --- 4. Enhanced Random Sequence ---
+class fifo_random_sequence extends fifo_base_sequence;
+    `uvm_object_utils(fifo_random_sequence)
+    function new(string name = "fifo_random_sequence"); super.new(name); endfunction
+
+    virtual task body();
+        `uvm_info("SEQ", "Starting Random Sequence", UVM_LOW)
+        repeat(100) begin
+            req = fifo_transaction::type_id::create("req");
+            start_item(req);
+            if (!req.randomize()) begin // Allow all combinations
                 `uvm_error("SEQ", "Random fail")
             end
             finish_item(req);
